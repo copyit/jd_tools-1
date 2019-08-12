@@ -22,14 +22,24 @@ def shouhuo(cookie_dict):
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     }
+    headers = {
+    'Host': 'ms.jr.jd.com',
+    'Accept': 'application/json',
+    'Origin': 'https://uuj.jr.jd.com',
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    'Referer': 'https://uuj.jr.jd.com/wxgrowing/moneytree7/index.html?channellv=sy&sid=a764905b65ead662bdc94860faa076cw',
+    'Accept-Language': 'zh-CN,en-US;q=0.8',
+    'X-Requested-With': 'com.jd.jrapp',
+}
 
     data = {
-        'reqData': '{"source":2,"sharePin":""}'
+            'reqData': '{"source":2,"sharePin":null}'
     }
 
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/harvest?_={}'.format(Gtime()),
                                  headers=headers, data=data, cookies=cookie_dict)
-   # print(response.json())
+    #print(response.json())
 
 
 def sell_fruit(cookie_dict):
