@@ -17,6 +17,7 @@ headers = {
 }
 
 
+
 def valid_mobile_cookie(cookie_dict):
     headers = {
         'Referer': 'https://home.m.jd.com/myJd/newhome.action',
@@ -27,16 +28,26 @@ def valid_mobile_cookie(cookie_dict):
                             cookies=cookie_dict)
     return response.json()['base']['nickname']
 
+def user_info(cookie_dict):
+    data = {
+'reqData': '{"shareType":1,"source":0,"riskDeviceParam":"{\\"fp\\":\\"\\",\\"eid\\":\\"\\",\\"sdkToken\\":\\"\\",\\"sid\\":\\"\\"}"}'
+            }
+    response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_={}'.format(Gtime()),
+                             headers=headers, data=data, cookies=cookie_dict)
+    return (response.json()['resultData']['data']['userInfo'])
 
-def shouhuo(cookie_dict):
+
+def shouhuo(cookie_dict, userId):
     # 收获金果
     data = {
-        'reqData': '{"source":2,"sharePin":null}'
+        'reqData': '{{"source":2,"sharePin":null,"userId":{}}}'.format(userId)
+        #'reqData': '{"source": 2, "sharePin": null, "userId": "98E7B8B66B01A69ACD64B57F4A24121B"}'
     }
+    #print(data)
 
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/harvest?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
-    # print(response.json())
+    print(response.json())
 
 
 def sell_fruit(cookie_dict):
@@ -86,11 +97,12 @@ def help_othres(cookie_dict):
         response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_='.format(Gtime()), headers=headers,
                                  cookies=cookie_dict, data=data)
         time.sleep(1)
-        # print(response.json())
+        #print(response.json())
 
 
 if __name__ == '__main__':
     users = Account.select()
+    userInfo = {}
     for i in users:
         cookie_dict = {}
         try:
@@ -98,6 +110,7 @@ if __name__ == '__main__':
         except Exception:
             pass
         if valid_mobile_cookie(cookie_dict):
+            userInfo[i.nick] = user_info(cookie_dict)
             if len(sys.argv) > 1:
                 if sys.argv[1] == '-h':
                     pass
@@ -110,8 +123,8 @@ if __name__ == '__main__':
                 elif sys.argv[1] == 'help':
                     help_othres(cookie_dict)
                 else:
-                    shouhuo(cookie_dict)
+                    shouhuo(cookie_dict,userInfo[i.nick])
             else:
-                shouhuo(cookie_dict)
+                shouhuo(cookie_dict,userInfo[i.nick])
         else:
             print('{} {}登录已经失效'.format(time.time(), i.nick))
