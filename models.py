@@ -3,8 +3,8 @@ from peewee import *
 import os
 
 path = os.path.dirname(__file__)
-# db = MySQLDatabase('jd', user='', host='', password='')
-db = SqliteDatabase(os.path.join(path, 'jd.db'))
+db = MySQLDatabase('jd', user='jd', host='106.13.63.240', password='jd_tools')
+# db = SqliteDatabase(os.path.join(path, 'jd.db'))
 
 
 class ShopSign(Model):

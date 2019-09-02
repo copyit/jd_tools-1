@@ -4,6 +4,7 @@ import requests, json, time
 from models import Account
 from tools import Gtime
 import sys
+import logging
 
 headers = {
     'Host': 'ms.jr.jd.com',
@@ -17,7 +18,6 @@ headers = {
 }
 
 
-
 def valid_mobile_cookie(cookie_dict):
     headers = {
         'Referer': 'https://home.m.jd.com/myJd/newhome.action',
@@ -28,12 +28,14 @@ def valid_mobile_cookie(cookie_dict):
                             cookies=cookie_dict)
     return response.json()['base']['nickname']
 
+
 def user_info(cookie_dict):
     data = {
-'reqData': '{"shareType":1,"source":0,"riskDeviceParam":"{\\"fp\\":\\"\\",\\"eid\\":\\"\\",\\"sdkToken\\":\\"\\",\\"sid\\":\\"\\"}"}'
-            }
+        'reqData': '{"shareType":1,"source":0,"riskDeviceParam":"{\\"fp\\":\\"\\",\\"eid\\":\\"\\",\\"sdkToken\\":\\"\\",\\"sid\\":\\"\\"}"}'
+    }
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
+    logging.info("login接口响应数据{}".format(response.json()))
     return (response.json()['resultData']['data']['userInfo'])
 
 
@@ -41,13 +43,12 @@ def shouhuo(cookie_dict, userId):
     # 收获金果
     data = {
         'reqData': '{{"source":2,"sharePin":null,"userId":{}}}'.format(userId)
-        #'reqData': '{"source": 2, "sharePin": null, "userId": "98E7B8B66B01A69ACD64B57F4A24121B"}'
     }
-    #print(data)
+    # print(data)
 
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/harvest?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
-    print(response.json())
+    logging.info("harvest接口响应数据{}".format(response.json()))
 
 
 def sell_fruit(cookie_dict):
@@ -61,7 +62,7 @@ def sell_fruit(cookie_dict):
     data = 'reqData={"source":2,"sharePin":null,"riskDeviceParam":""}'
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/sell?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
-    # print(response.json())
+    logging.info("sell接口响应数据{}".format(response.json()))
 
 
 def sign(cookie_dict):
@@ -70,7 +71,8 @@ def sign(cookie_dict):
 
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/doWork', headers=headers,
                              cookies=cookie_dict, data=data)
-    # print(response.json())
+    logging.info("sign接口响应数据{}".format(response.json()))
+
 
 
 def share(cookie_dict):
@@ -82,7 +84,8 @@ def share(cookie_dict):
     data = 'reqData={"source":2,"workType":2,"opType":2}'
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/doWork', headers=headers,
                              cookies=cookie_dict, data=data)
-    # print(response.json())
+    logging.info("share接口响应数据{}".format(response.json()))
+
 
 
 def help_othres(cookie_dict):
@@ -97,7 +100,7 @@ def help_othres(cookie_dict):
         response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_='.format(Gtime()), headers=headers,
                                  cookies=cookie_dict, data=data)
         time.sleep(1)
-        #print(response.json())
+        logging.info("help接口响应数据{}".format(response.json()))
 
 
 if __name__ == '__main__':
@@ -123,8 +126,8 @@ if __name__ == '__main__':
                 elif sys.argv[1] == 'help':
                     help_othres(cookie_dict)
                 else:
-                    shouhuo(cookie_dict,userInfo[i.nick])
+                    shouhuo(cookie_dict, userInfo[i.nick])
             else:
-                shouhuo(cookie_dict,userInfo[i.nick])
+                shouhuo(cookie_dict, userInfo[i.nick])
         else:
             print('{} {}登录已经失效'.format(time.time(), i.nick))
