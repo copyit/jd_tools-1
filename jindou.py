@@ -36,15 +36,14 @@ def user_info(cookie_dict):
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
     logging.info("login接口响应数据{}".format(response.json()))
-    return (response.json()['resultData']['data']['userInfo'])
+    return (response.json()['resultData']['data'])
 
 
-def shouhuo(cookie_dict, userId):
+def shouhuo(cookie_dict, userInfo):
     # 收获金果
     data = {
-        'reqData': '{{"source":2,"sharePin":null,"userId":{}}}'.format(userId)
+        'reqData': '{{"source":2,"sharePin":null,"userId":"{}","userToken":"{}"}}'.format(userInfo['userInfo'], userInfo['userToken'])
     }
-    # print(data)
 
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/harvest?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
@@ -104,6 +103,7 @@ def help_othres(cookie_dict):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level='WARN')
     users = Account.select()
     userInfo = {}
     for i in users:
