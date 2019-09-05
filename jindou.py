@@ -3,8 +3,8 @@
 import requests, json, time
 from models import Account
 from tools import Gtime
-import sys
 import logging
+import argparse
 
 headers = {
     'Host': 'ms.jr.jd.com',
@@ -50,7 +50,7 @@ def shouhuo(cookie_dict, userInfo):
     logging.info("harvest接口响应数据{}".format(response.json()))
 
 
-def sell_fruit(cookie_dict):
+def sell_fruit(cookie_dict, userInfo):
     # 卖出金果
     header = {
         'Origin': 'https://uuj.jr.jd.com',
@@ -64,7 +64,7 @@ def sell_fruit(cookie_dict):
     logging.info("sell接口响应数据{}".format(response.json()))
 
 
-def sign(cookie_dict):
+def sign(cookie_dict, userInfo):
     # 签到
     data = 'reqData={"source":2,"workType":1,"opType":2}'
 
@@ -74,7 +74,7 @@ def sign(cookie_dict):
 
 
 
-def share(cookie_dict):
+def share(cookie_dict, userInfo):
     # 分享任务
     data = 'reqData={"source":2,"workType":2,"opType":1}'
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/doWork', headers=headers,
@@ -87,7 +87,7 @@ def share(cookie_dict):
 
 
 
-def help_othres(cookie_dict):
+def help_othres(cookie_dict, userInfo):
     sharePin = [
         'TRJqSOe2BFV5SKL6QWxIPsAdoUJQ3Dik',
         '9_F8TGySa988werHZiLH4MAdoUJQ3Dik',
@@ -103,8 +103,28 @@ def help_othres(cookie_dict):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level='WARN')
+    func = {
+        "help": help_othres,
+        "share": share,
+        "sign": sign,
+        "seal": sell_fruit,
+        "get": shouhuo
+    }
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log', '-l', action='store_true', help='是否显示log')
+    parser.add_argument('--user', '-u', default="", type=str, help="指定username")
+    parser.add_argument('--action', '-a', default="", type=str, help="操作类型")
+    args = parser.parse_args()
+
+    LEVEL = "INFO" if args.log else "WARN"
+    logging.basicConfig(level=LEVEL)
     users = Account.select()
+    if args.user:
+        users = users.where(Account.nick == args.user)
+    if args.action:
+        print(args.action)
+
     userInfo = {}
     for i in users:
         cookie_dict = {}
@@ -114,20 +134,8 @@ if __name__ == '__main__':
             pass
         if valid_mobile_cookie(cookie_dict):
             userInfo[i.nick] = user_info(cookie_dict)
-            if len(sys.argv) > 1:
-                if sys.argv[1] == '-h':
-                    pass
-                elif sys.argv[1] == 'sign':
-                    sign(cookie_dict)
-                elif sys.argv[1] == 'share':
-                    share(cookie_dict)
-                elif sys.argv[1] == 'sell':
-                    sell_fruit(cookie_dict)
-                elif sys.argv[1] == 'help':
-                    help_othres(cookie_dict)
-                else:
-                    shouhuo(cookie_dict, userInfo[i.nick])
-            else:
-                shouhuo(cookie_dict, userInfo[i.nick])
+            #if args.action:
+            action = func.get(args.action, shouhuo)
+            action(cookie_dict, userInfo[i.nick])
         else:
             print('{} {}登录已经失效'.format(time.time(), i.nick))
