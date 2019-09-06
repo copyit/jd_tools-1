@@ -48,7 +48,7 @@ def unfollow_shops(cookie_dict, shops):
     )
 
     response = requests.get('https://wq.jd.com/fav/shop/batchunfollow', headers=headers, params=params, cookies=cookie_dict)
-    print(response.text)
+    # print(response.text)
 
 
 def get_follow_shop_list(cookie_dict, page=1, count=10):
@@ -116,7 +116,7 @@ def unfollow_goods(cookie_dict, goods):
 
     response = requests.get('https://wq.jd.com/fav/comm/FavCommBatchDel', headers=headers, params=params, cookies=cookie_dict)
 
-    print(response.text)
+    # print(response.text)
 
 
 @retry(stop_max_attempt_number=7, wait_fixed=200)

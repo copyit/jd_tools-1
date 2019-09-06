@@ -5,6 +5,7 @@ from models import Account
 from tools import Gtime
 import logging
 import argparse
+from jd_request import unfollow_goods, unfollow_shops, get_follow_good_list, get_follow_shop_list
 
 headers = {
     'Host': 'ms.jr.jd.com',
@@ -35,7 +36,7 @@ def user_info(cookie_dict):
     }
     response = requests.post('https://ms.jr.jd.com/gw/generic/uc/h5/m/login?_={}'.format(Gtime()),
                              headers=headers, data=data, cookies=cookie_dict)
-    logging.info("login接口响应数据{}".format(response.json()))
+    logging.debug("login接口响应数据{}".format(response.json()))
     return (response.json()['resultData']['data'])
 
 
@@ -102,12 +103,33 @@ def help_othres(cookie_dict, userInfo):
         logging.info("help接口响应数据{}".format(response.json()))
 
 
+def clean_all(cookie_dict, userInfo):
+    shop_count = 0
+    good_count = 0
+    while True:
+        goods = get_follow_good_list(cookie_dict, 1, 50)
+        if not len(goods):
+            break
+        good_count += len(goods)
+        goods = ','.join([good['commId'] for good in goods])
+        unfollow_goods(cookie_dict, goods)
+    while True:
+        shops = get_follow_shop_list(cookie_dict, 1, 50)
+        if not len(shops):
+            break
+        shop_count += len(shops)
+        shops = ','.join([shop['shopId'] for shop in shops])
+        unfollow_shops(cookie_dict, shops)
+    logging.info("取消关注店铺{},取消关注商品{}".format(shop_count, good_count))
+
+
 if __name__ == '__main__':
     func = {
         "help": help_othres,
         "share": share,
         "sign": sign,
         "seal": sell_fruit,
+        "clean": clean_all,
         "get": shouhuo
     }
 
@@ -122,9 +144,6 @@ if __name__ == '__main__':
     users = Account.select()
     if args.user:
         users = users.where(Account.nick == args.user)
-    if args.action:
-        print(args.action)
-
     userInfo = {}
     for i in users:
         cookie_dict = {}
@@ -134,7 +153,6 @@ if __name__ == '__main__':
             pass
         if valid_mobile_cookie(cookie_dict):
             userInfo[i.nick] = user_info(cookie_dict)
-            #if args.action:
             action = func.get(args.action, shouhuo)
             action(cookie_dict, userInfo[i.nick])
         else:
