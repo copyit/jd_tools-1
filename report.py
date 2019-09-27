@@ -2,7 +2,6 @@
 
 import requests
 import argparse
-import logging
 
 headers = {
     'Origin': 'https://try.jd.com',
