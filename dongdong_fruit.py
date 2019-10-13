@@ -158,6 +158,12 @@ def every_day_sign(cookie, info=None):
     response = requests.get('https://api.m.jd.com/client.action', headers=headers, params=params, cookies=cookie)
     logging.info(response.json())
 
+# 浇水，仅留50水
+def many_water(cookie, info=None):
+    water_count = get_water_count(cookie)
+    for _ in range(int(water_count/10) - 5):
+        water_fruit(cookie)
+
 
 # 浇水
 def water_fruit(cookie, info=None):
@@ -259,6 +265,7 @@ if __name__ == '__main__':
         "ad": do_ad_task,
         "3": sancan_sign,
         "10": do_10_water,
+        "many": many_water,
     }
 
     parser = argparse.ArgumentParser()
